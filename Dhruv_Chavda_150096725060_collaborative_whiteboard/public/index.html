@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎨 Real-Time Collaborative Whiteboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Header Bar -->
+  <header class="header-bar">
+    <div class="logo-group">
+      <span class="logo-icon">🎨</span>
+      <h1>CollabBoard</h1>
+      <span class="board-badge" id="board-badge">Room: <strong id="current-board-name">...</strong></span>
+    </div>
+
+    <div class="header-actions">
+      <!-- Active Users Counter -->
+      <div class="active-users-pill">
+        <span class="status-dot"></span>
+        <span id="user-count">1 online</span>
+      </div>
+      
+      <!-- Users List Avatars -->
+      <div class="users-avatar-list" id="users-avatar-list"></div>
+
+      <!-- Room Switcher & Share -->
+      <button class="btn btn-secondary" id="btn-share" title="Copy Board Link">🔗 Share</button>
+      <button class="btn btn-primary" id="btn-switch-room">Switch Room</button>
+    </div>
+  </header>
+
+  <!-- Main Canvas Container -->
+  <main class="canvas-container">
+    <canvas id="whiteboard"></canvas>
+    <div id="cursors-container"></div>
+  </main>
+
+  <!-- Floating Drawing Toolbar -->
+  <aside class="floating-toolbar" id="toolbar">
+    <!-- Tools -->
+    <div class="tool-section">
+      <button class="tool-btn active" id="tool-brush" title="Pen Tool">
+        ✏️
+      </button>
+      <button class="tool-btn" id="tool-eraser" title="Eraser Tool">
+        🧹
+      </button>
+    </div>
+
+    <div class="toolbar-divider"></div>
+
+    <!-- Color Palette -->
+    <div class="color-palette">
+      <div class="color-swatch active" style="background-color: #1E293B;" data-color="#1E293B"></div>
+      <div class="color-swatch" style="background-color: #EF4444;" data-color="#EF4444"></div>
+      <div class="color-swatch" style="background-color: #3B82F6;" data-color="#3B82F6"></div>
+      <div class="color-swatch" style="background-color: #10B981;" data-color="#10B981"></div>
+      <div class="color-swatch" style="background-color: #F59E0B;" data-color="#F59E0B"></div>
+      <div class="color-swatch" style="background-color: #8B5CF6;" data-color="#8B5CF6"></div>
+      <input type="color" id="custom-color-picker" title="Choose custom color" value="#1E293B">
+    </div>
+
+    <div class="toolbar-divider"></div>
+
+    <!-- Stroke Size Selector -->
+    <div class="size-selector">
+      <label for="stroke-size">Size: <span id="size-label">3px</span></label>
+      <input type="range" id="stroke-size" min="1" max="40" value="3">
+      <div class="size-preview" id="size-preview"></div>
+    </div>
+
+    <div class="toolbar-divider"></div>
+
+    <!-- Actions -->
+    <div class="action-section">
+      <button class="action-btn" id="btn-undo" title="Undo Last Stroke (Ctrl+Z)">
+        ↩️ Undo
+      </button>
+      <button class="action-btn btn-danger" id="btn-clear" title="Clear Entire Canvas">
+        🗑️ Clear
+      </button>
+      <button class="action-btn btn-success" id="btn-download" title="Export as PNG">
+        💾 Export
+      </button>
+    </div>
+  </aside>
+
+  <!-- Join Room Modal -->
+  <div class="modal-overlay" id="join-modal">
+    <div class="modal-card">
+      <h2>Join Collaborative Canvas</h2>
+      <p>Enter a room name and your handle to draw with others in real time.</p>
+      
+      <form id="join-form">
+        <div class="form-group">
+          <label for="input-board-id">Board Room ID</label>
+          <input type="text" id="input-board-id" placeholder="e.g. DESIGN_101" required value="DESIGN_101">
+        </div>
+        <div class="form-group">
+          <label for="input-username">Your Name</label>
+          <input type="text" id="input-username" placeholder="e.g. Alice" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Enter Whiteboard</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Notification Toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Socket.io & Client Logic -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="canvas.js"></script>
+</body>
+</html>
