@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Collaborative Whiteboard</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>Collaborative Whiteboard</h1>
+      <p id="roomLabel"></p>
+    </div>
+
+    <div class="join-panel">
+      <input id="username" placeholder="Your name" maxlength="20">
+      <input id="color" type="color" value="#2196f3">
+      <button id="joinBtn">Join Board</button>
+    </div>
+  </header>
+
+  <section class="toolbar">
+    <label>
+      Brush
+      <input id="size" type="range" min="1" max="20" value="3">
+    </label>
+    <span id="sizeValue">3px</span>
+    <button id="undoBtn">Undo</button>
+    <button id="clearBtn" class="danger">Clear Canvas</button>
+    <span id="status">Not connected</span>
+  </section>
+
+  <main id="canvasWrapper">
+    <canvas id="canvas"></canvas>
+    <div id="cursors"></div>
+  </main>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="canvas.js"></script>
+</body>
+</html>
