@@ -175,22 +175,4 @@ Aryaa_Bhadane/
 
 ---
 
-## 🚀 7. Deployment Instructions (Render)
-
-### Step 1: Push Repository to GitHub
-Ensure the project is pushed to your GitHub repository (`itm-assignment-11-whiteboard-socket`).
-
-### Step 2: Create Web Service on Render
-1. Log in to [Render](https://render.com) and click **New +** $\rightarrow$ **Web Service**.
-2. Connect your GitHub repository.
-3. Configure the build and start settings:
-   - **Root Directory:** `Aryaa_Bhadane`
-   - **Environment:** `Node`
-   - **Build Command:** `npm install`
-   - **Start Command:** `npm start`
-   - **Instance Type:** `Free`
-4. Click **Create Web Service**.
-
-> **Note on WebSockets & Cold Starts:**
-> - Render automatically supports WebSockets over HTTPS/WSS.
-> - On the Free tier, Render instances spin down after inactivity. The first request after idling may experience a brief cold-start spin-up delay.
+## 🚀 7. DEPLOYMENT LINK: https://collaborative-whiteboard-vsxd.onrender.com/
