@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Real-Time Collaborative Whiteboard</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Navbar -->
+    <header class="navbar">
+      <div class="nav-brand">
+        <h2>Collaborative Whiteboard</h2>
+      </div>
+      <div class="nav-info">
+        <span id="room-display">Room: DESIGN_101</span>
+        <span id="user-display">User: Anonymous</span>
+        <span id="users-count">Users: 1</span>
+      </div>
+    </header>
+
+    <!-- Canvas Container -->
+    <div class="canvas-container">
+      <canvas id="whiteboard"></canvas>
+      <div id="cursor-overlay"></div>
+
+      <!-- Toolbar -->
+      <div class="toolbar">
+        <div class="tool-group">
+          <label>Tools:</label>
+          <button class="tool-btn active" data-tool="pencil">Pencil</button>
+          <button class="tool-btn" data-tool="eraser">Eraser</button>
+          <button class="tool-btn" data-tool="line">Line</button>
+          <button class="tool-btn" data-tool="rect">Rectangle</button>
+          <button class="tool-btn" data-tool="circle">Circle</button>
+        </div>
+
+        <div class="tool-group">
+          <label>Color:</label>
+          <input type="color" id="color-picker" value="#000000">
+        </div>
+
+        <div class="tool-group">
+          <label>Size:</label>
+          <input type="range" id="size-slider" min="1" max="30" value="3">
+          <span id="size-val">3px</span>
+        </div>
+
+        <div class="tool-group">
+          <button id="undo-btn">Undo</button>
+          <button id="clear-btn">Clear Canvas</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Join Modal -->
+    <div class="modal" id="join-modal">
+      <div class="modal-content">
+        <h3>Join Whiteboard Room</h3>
+        <div class="form-field">
+          <label for="username-input">Username:</label>
+          <input type="text" id="username-input" placeholder="Enter name" value="User1">
+        </div>
+        <div class="form-field">
+          <label for="room-input">Board ID:</label>
+          <input type="text" id="room-input" placeholder="Enter board ID" value="DESIGN_101">
+        </div>
+        <div class="form-field">
+          <label for="user-color-input">Cursor Color:</label>
+          <input type="color" id="user-color-input" value="#ff5722">
+        </div>
+        <button id="join-btn">Join Room</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="canvas.js"></script>
+</body>
+</html>
