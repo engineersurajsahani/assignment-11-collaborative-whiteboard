@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Canvas Cove · Collaborative Whiteboard</title><link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="join-screen" id="joinScreen">
+  <div class="join-card">
+    <div class="join-logo">✦</div>
+    <p class="eyebrow">CANVAS COVE</p>
+    <h1>Enter your creative room</h1>
+    <p class="join-subtitle">Join a shared whiteboard and draw together in real time.</p>
+    <form id="joinForm">
+      <label>Your name<input id="nameInput" maxlength="24" placeholder="e.g. Jui" autocomplete="name"></label>
+      <label>Room ID<input id="joinRoomInput" maxlength="50" placeholder="e.g. DESIGN_101" autocomplete="off"></label>
+      <button class="primary-btn" type="submit">Join Room <span>→</span></button>
+    </form>
+    <div class="quick-room"><span>Quick start</span><button type="button" id="demoRoom">Use demo room</button></div>
+    <p class="join-note">Anyone with the same Room ID can collaborate with you.</p>
+  </div>
+</div>
+
+<div class="app" id="app" hidden>
+<header>
+  <div class="brand"><div class="logo">✦</div><div><h1>Canvas Cove</h1><p>Real-Time Collaborative Studio</p></div></div>
+  <div class="room-pill"><span class="dot"></span><span id="roomName">demo</span><button id="copyRoom" title="Copy room link">⧉</button></div>
+  <div class="user-chip"><span id="avatar">J</span><span id="userName">Guest</span></div>
+</header>
+<main>
+<aside class="sidebar">
+<section><span class="label">BOARD ROOM</span><div class="room-input"><input id="boardInput" placeholder="Room name" maxlength="50"><button id="joinBtn">Join</button></div><button class="switch-room" id="switchRoom">＋ Join / Switch room</button></section>
+<section><span class="label">BRUSH</span><div class="colors" id="colors"><button data-color="#5b465c" class="selected"></button><button data-color="#c45d76"></button><button data-color="#d89b62"></button><button data-color="#79a89a"></button><button data-color="#7d87b8"></button><input type="color" id="colorPicker" value="#5b465c"></div><div class="size-row"><span>Size</span><b id="sizeValue">5</b></div><input type="range" id="size" min="1" max="30" value="5"></section>
+<section><span class="label">ACTIONS</span><button class="action" id="undo">↶ <span>Undo last stroke</span><kbd>⌘ Z</kbd></button><button class="action danger" id="clear">⌫ <span>Clear canvas</span></button></section>
+<section class="collab"><span class="label">COLLABORATORS <b id="count">1</b></span><div id="users"></div></section>
+<div class="tip"><strong>✦ Tip</strong><p>Share the room link with your team. Everyone using the same Room ID sees the same canvas.</p></div>
+</aside>
+<section class="workspace"><div class="toolbar"><div><strong id="boardTitle">demo</strong><span class="status"><i></i> Live</span></div><div class="toolbar-actions"><button id="download">⇩ Export PNG</button></div></div><div class="canvas-wrap"><canvas id="canvas"></canvas><div id="cursors"></div><div class="empty" id="empty"><div>✎</div><strong>Start creating</strong><span>Draw something and invite a collaborator.</span></div></div><footer><span id="connection">Connecting…</span><span>Canvas Cove · shared in real time</span></footer></section>
+</main></div>
+<script src="/socket.io/socket.io.js"></script><script src="canvas.js"></script>
+</body></html>
