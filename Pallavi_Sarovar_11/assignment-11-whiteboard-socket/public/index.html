@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Collaborative Whiteboard</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>🎨 Collaborative Whiteboard</h1>
+      <p>Real-time multi-user drawing with Socket.io</p>
+    </div>
+    <div class="connection">
+      <span id="statusDot"></span>
+      <span id="connectionStatus">Connecting...</span>
+    </div>
+  </header>
+
+  <section class="toolbar">
+    <label>
+      Name
+      <input id="username" type="text" maxlength="30" placeholder="Your name" />
+    </label>
+
+    <label>
+      Board
+      <input id="boardId" type="text" maxlength="50" placeholder="demo" />
+    </label>
+
+    <button id="joinBtn">Join Board</button>
+
+    <label>
+      Color
+      <input id="colorPicker" type="color" value="#111111" />
+    </label>
+
+    <label>
+      Brush
+      <input id="sizePicker" type="range" min="1" max="30" value="4" />
+      <span id="sizeValue">4</span> px
+    </label>
+
+    <button id="undoBtn">↩ Undo</button>
+    <button id="clearBtn" class="danger">🗑 Clear Canvas</button>
+  </section>
+
+  <section class="info">
+    <div>
+      <strong>Board:</strong> <span id="currentBoard">Not joined</span>
+    </div>
+    <div>
+      <strong>Collaborators:</strong>
+      <span id="userCount">0</span>
+    </div>
+    <div id="usersList"></div>
+  </section>
+
+  <main class="canvas-wrap">
+    <canvas id="whiteboard"></canvas>
+    <div id="remoteCursors"></div>
+  </main>
+
+  <div id="toast" class="toast"></div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/canvas.js"></script>
+</body>
+</html>
