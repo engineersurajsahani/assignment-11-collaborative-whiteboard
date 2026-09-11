@@ -3,66 +3,194 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Collaborative Whiteboard</title>
+  <title>CollabBoard — Real-Time Collaborative Whiteboard</title>
+  <meta name="description" content="A real-time collaborative whiteboard powered by Socket.io. Draw, collaborate, and create together." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
-  <header class="topbar">
-    <div>
-      <h1>🎨 Collaborative Whiteboard</h1>
-      <p>Real-time multi-user drawing with Socket.io</p>
+
+  <!-- ============ JOIN MODAL ============ -->
+  <div id="joinModal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-logo">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+          <rect width="40" height="40" rx="10" fill="url(#logoGrad)"/>
+          <path d="M12 28L20 12L28 28" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="20" cy="20" r="3" fill="#fff"/>
+          <defs><linearGradient id="logoGrad" x1="0" y1="0" x2="40" y2="40"><stop stop-color="#f97316"/><stop offset="1" stop-color="#ea580c"/></linearGradient></defs>
+        </svg>
+        <span class="modal-logo-text">CollabBoard</span>
+      </div>
+      <p class="modal-subtitle">Enter your name to start collaborating</p>
+      <div class="modal-field">
+        <label for="username">Display Name</label>
+        <input id="username" type="text" maxlength="30" placeholder="e.g. Pallavi" autocomplete="off" />
+      </div>
+      <div class="modal-field">
+        <label for="boardId">Board ID</label>
+        <input id="boardId" type="text" maxlength="50" placeholder="demo" autocomplete="off" />
+      </div>
+      <button id="joinBtn" class="btn btn-primary btn-lg modal-join">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+        Join Board
+      </button>
     </div>
-    <div class="connection">
-      <span id="statusDot"></span>
-      <span id="connectionStatus">Connecting...</span>
+  </div>
+
+  <!-- ============ CLEAR CONFIRM MODAL ============ -->
+  <div id="clearModal" class="modal-overlay" style="display:none">
+    <div class="modal-card modal-card-sm">
+      <div class="modal-icon-warn">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      </div>
+      <h3>Clear entire board?</h3>
+      <p class="modal-subtitle">This will erase all drawings for every collaborator. This cannot be undone.</p>
+      <div class="modal-actions">
+        <button id="clearCancel" class="btn btn-ghost">Cancel</button>
+        <button id="clearConfirm" class="btn btn-danger">Clear Canvas</button>
+      </div>
     </div>
-  </header>
+  </div>
 
-  <section class="toolbar">
-    <label>
-      Name
-      <input id="username" type="text" maxlength="30" placeholder="Your name" />
-    </label>
+  <!-- ============ MAIN APP ============ -->
+  <div id="app" class="app" style="display:none">
 
-    <label>
-      Board
-      <input id="boardId" type="text" maxlength="50" placeholder="demo" />
-    </label>
+    <!-- TOP NAV -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <div class="topbar-brand">
+          <svg width="28" height="28" viewBox="0 0 40 40" fill="none">
+            <rect width="40" height="40" rx="10" fill="url(#logoGrad2)"/>
+            <path d="M12 28L20 12L28 28" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="20" cy="20" r="3" fill="#fff"/>
+            <defs><linearGradient id="logoGrad2" x1="0" y1="0" x2="40" y2="40"><stop stop-color="#f97316"/><stop offset="1" stop-color="#ea580c"/></linearGradient></defs>
+          </svg>
+          <div>
+            <h1>CollabBoard</h1>
+            <p class="topbar-tagline">Real-Time Collaborative Whiteboard</p>
+          </div>
+        </div>
+      </div>
+      <div class="topbar-center">
+        <div class="board-badge">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+          <span id="currentBoard">demo</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <div class="collaborator-avatars" id="collaboratorAvatars"></div>
+        <div class="collaborator-count" id="collaboratorCount" title="Active collaborators">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+          <span id="userCount">0</span>
+        </div>
+        <div class="connection-badge" id="connectionBadge">
+          <span id="statusDot" class="status-dot"></span>
+          <span id="connectionStatus">Connecting…</span>
+        </div>
+      </div>
+    </header>
 
-    <button id="joinBtn">Join Board</button>
+    <div class="workspace">
 
-    <label>
-      Color
-      <input id="colorPicker" type="color" value="#111111" />
-    </label>
+      <!-- LEFT TOOLBAR -->
+      <aside class="toolbar" id="toolbar">
+        <div class="toolbar-section">
+          <span class="toolbar-label">Tools</span>
+          <button class="tool-btn active" id="toolPen" data-tool="pen" title="Pen (Draw)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
+          </button>
+          <button class="tool-btn" id="toolBrush" data-tool="brush" title="Brush (Thick & Smooth)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.06 11.9l8.07-8.06a2.85 2.85 0 1 1 4.03 4.03l-8.06 8.08"/><path d="M7.07 14.94c-1.66 0-3 1.34-3 3 0 1.31-1.16 2-1.7 2 1.52.88 4.22.42 5.7-1.06 1.4-1.4 1.4-3.66 0-5.06l-1-1.02z"/></svg>
+          </button>
+          <button class="tool-btn" id="toolEraser" data-tool="eraser" title="Eraser">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20H7L3 16l9-9 8 8-4 4z"/><path d="M6.5 13.5l5 5"/></svg>
+          </button>
+        </div>
 
-    <label>
-      Brush
-      <input id="sizePicker" type="range" min="1" max="30" value="4" />
-      <span id="sizeValue">4</span> px
-    </label>
+        <div class="toolbar-divider"></div>
 
-    <button id="undoBtn">↩ Undo</button>
-    <button id="clearBtn" class="danger">🗑 Clear Canvas</button>
-  </section>
+        <div class="toolbar-section">
+          <span class="toolbar-label">Color</span>
+          <div class="color-picker-wrap">
+            <input id="colorPicker" type="color" value="#1e1e1e" title="Stroke color" />
+            <span class="color-preview" id="colorPreview" style="background:#1e1e1e"></span>
+          </div>
+          <div class="color-swatches" id="colorSwatches">
+            <button class="swatch active" data-color="#1e1e1e" style="background:#1e1e1e" title="Charcoal"></button>
+            <button class="swatch" data-color="#ea580c" style="background:#ea580c" title="Terracotta"></button>
+            <button class="swatch" data-color="#f59e0b" style="background:#f59e0b" title="Amber"></button>
+            <button class="swatch" data-color="#b45309" style="background:#b45309" title="Cinnamon"></button>
+            <button class="swatch" data-color="#15803d" style="background:#15803d" title="Olive"></button>
+            <button class="swatch" data-color="#e11d48" style="background:#e11d48" title="Crimson"></button>
+            <button class="swatch" data-color="#7c3aed" style="background:#7c3aed" title="Plum"></button>
+            <button class="swatch" data-color="#ffffff" style="background:#ffffff" title="White"></button>
+          </div>
+        </div>
 
-  <section class="info">
-    <div>
-      <strong>Board:</strong> <span id="currentBoard">Not joined</span>
+        <div class="toolbar-divider"></div>
+
+        <div class="toolbar-section">
+          <span class="toolbar-label">Size</span>
+          <div class="size-control">
+            <input id="sizePicker" type="range" min="1" max="30" value="4" title="Brush size" />
+            <span class="size-value" id="sizeValue">4</span>
+          </div>
+          <div class="size-preview-wrap">
+            <div class="size-preview-dot" id="sizePreviewDot"></div>
+          </div>
+        </div>
+
+        <div class="toolbar-divider"></div>
+
+        <div class="toolbar-section">
+          <span class="toolbar-label">Actions</span>
+          <button class="tool-btn" id="undoBtn" title="Undo last stroke">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+          </button>
+          <button class="tool-btn danger-tool" id="clearBtn" title="Clear canvas">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+          </button>
+        </div>
+      </aside>
+
+      <!-- CANVAS AREA -->
+      <main class="canvas-area">
+        <div class="canvas-wrap" id="canvasWrap">
+          <canvas id="whiteboard"></canvas>
+          <div id="remoteCursors"></div>
+        </div>
+      </main>
     </div>
-    <div>
-      <strong>Collaborators:</strong>
-      <span id="userCount">0</span>
-    </div>
-    <div id="usersList"></div>
-  </section>
 
-  <main class="canvas-wrap">
-    <canvas id="whiteboard"></canvas>
-    <div id="remoteCursors"></div>
-  </main>
+    <!-- BOTTOM STATUS BAR -->
+    <footer class="statusbar">
+      <div class="statusbar-left">
+        <span class="status-item" id="statusTool">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/></svg>
+          Pointer
+        </span>
+        <span class="status-divider">|</span>
+        <span class="status-item" id="statusSize">Size: 4px</span>
+        <span class="status-divider">|</span>
+        <span class="status-item">
+          <span class="status-color-dot" id="statusColorDot" style="background:#1e1e1e"></span>
+          <span id="statusColorHex">#1e1e1e</span>
+        </span>
+      </div>
+      <div class="statusbar-right">
+        <span class="status-item" id="statusConnection">
+          <span class="status-dot-sm" id="statusDotSm"></span>
+          Connected
+        </span>
+      </div>
+    </footer>
+  </div>
 
-  <div id="toast" class="toast"></div>
+  <!-- TOAST NOTIFICATIONS -->
+  <div id="toastContainer" class="toast-container"></div>
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="/canvas.js"></script>

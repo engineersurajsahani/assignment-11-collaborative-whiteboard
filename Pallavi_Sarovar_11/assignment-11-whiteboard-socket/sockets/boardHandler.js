@@ -1,3 +1,13 @@
+/**
+ * Board Socket Handlers
+ * Manages board join/leave, drawing strokes, undo, clear, and sync.
+ *
+ * KEY FIX (Undo): The previous implementation stripped `strokeGroupId` during
+ * stroke normalization. This meant `draw:undo` could never identify which
+ * segments belonged to the same continuous stroke. Now `strokeGroupId` is
+ * preserved through the entire pipeline.
+ */
+
 function getOrCreateBoard(boardRooms, boardId) {
   if (!boardRooms[boardId]) {
     boardRooms[boardId] = {
@@ -66,6 +76,8 @@ function registerBoardHandlers(io, socket, boardRooms) {
     const board = boardRooms[boardId];
     if (!board) return;
 
+    // IMPORTANT: Preserve strokeGroupId so undo works correctly.
+    // Each continuous mouse/touch drag shares one strokeGroupId.
     const normalizedStroke = {
       prevX: Number(stroke.prevX),
       prevY: Number(stroke.prevY),
@@ -73,7 +85,8 @@ function registerBoardHandlers(io, socket, boardRooms) {
       currY: Number(stroke.currY),
       color: typeof stroke.color === "string" ? stroke.color : "#000000",
       size: Math.max(1, Math.min(50, Number(stroke.size) || 3)),
-      userId: socket.id
+      userId: socket.id,
+      strokeGroupId: stroke.strokeGroupId || null
     };
 
     if (![normalizedStroke.prevX, normalizedStroke.prevY, normalizedStroke.currX, normalizedStroke.currY].every(Number.isFinite)) {
@@ -105,12 +118,17 @@ function registerBoardHandlers(io, socket, boardRooms) {
     if (board.strokes.length === 0) return;
 
     // A "continuous stroke action" is represented by the same strokeGroupId.
-    // Remove the most recent complete group.
+    // Remove ALL segments from the most recent complete stroke group.
     const lastStroke = board.strokes[board.strokes.length - 1];
     const groupId = lastStroke.strokeGroupId;
 
     if (groupId) {
-      board.strokes = board.strokes.filter((stroke) => stroke.strokeGroupId !== groupId);
+      // Find the index where this group starts (they are contiguous at the end)
+      let removeFrom = board.strokes.length - 1;
+      while (removeFrom > 0 && board.strokes[removeFrom - 1].strokeGroupId === groupId) {
+        removeFrom--;
+      }
+      board.strokes.splice(removeFrom);
     } else {
       // Backward-safe fallback if a stroke has no group id.
       board.strokes.pop();

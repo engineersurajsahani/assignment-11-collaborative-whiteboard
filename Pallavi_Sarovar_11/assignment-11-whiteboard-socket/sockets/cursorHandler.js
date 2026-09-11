@@ -1,3 +1,9 @@
+/**
+ * Cursor Socket Handlers
+ * Broadcasts real-time cursor positions to collaborators in the same board.
+ * Includes username and color so new clients can render labels immediately.
+ */
+
 function registerCursorHandlers(io, socket, boardRooms) {
   socket.on("cursor:move", ({ boardId, x, y }) => {
     if (!boardId || socket.data.boardId !== boardId || !boardRooms[boardId]) return;
@@ -17,7 +23,9 @@ function registerCursorHandlers(io, socket, boardRooms) {
     socket.to(boardId).emit("cursor:update", {
       userId: socket.id,
       x: cursor.x,
-      y: cursor.y
+      y: cursor.y,
+      username: user.username,
+      color: user.color
     });
   });
 }
