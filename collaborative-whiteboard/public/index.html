@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Collaborative Whiteboard</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="app">
+    <div id="topbar">
+      <h1>🎨 Collaborative Whiteboard</h1>
+      <span id="boardIdLabel"></span>
+
+      <form id="joinForm">
+        <input id="usernameInput" type="text" placeholder="Your name" required maxlength="24" />
+        <input id="boardIdInput" type="text" placeholder="Board ID (e.g. demo)" required maxlength="40" />
+        <button type="submit">Join Board</button>
+      </form>
+
+      <span id="connectionStatus">Not connected</span>
+    </div>
+
+    <div class="toolbar">
+      <label>
+        Color
+        <input id="colorPicker" type="color" value="#1a1a1a" />
+      </label>
+      <label>
+        Size
+        <input id="sizePicker" type="range" min="1" max="30" value="3" />
+        <span id="sizeLabel">3px</span>
+      </label>
+      <button id="undoBtn" class="secondary" type="button">↩ Undo</button>
+      <button id="clearBtn" class="secondary" type="button">🗑 Clear Canvas</button>
+      <div id="activeUsers"></div>
+    </div>
+
+    <div id="canvasWrapper">
+      <canvas id="board" width="1600" height="900"></canvas>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="canvas.js"></script>
+</body>
+</html>
