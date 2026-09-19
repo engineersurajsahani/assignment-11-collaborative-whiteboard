@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Collaborative Whiteboard</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+  <div class="header">
+    <h2>Collaborative Whiteboard</h2>
+    <div class="info">
+      <span>Samarth Navale (150096725148)</span>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <label>Board ID: <input type="text" id="boardIdInput" value="DESIGN_101"></label>
+    <label>Name: <input type="text" id="nameInput" value="User"></label>
+    <button id="joinBtn">Join Board</button>
+
+    <span class="divider">|</span>
+
+    <label>Color: <input type="color" id="colorPicker" value="#000000"></label>
+    <label>Size: <input type="range" id="sizePicker" min="1" max="20" value="3"></label>
+    
+    <button id="undoBtn">Undo</button>
+    <button id="clearBtn">Clear</button>
+
+    <span class="divider">|</span>
+    <span id="activeCount">Users: 1</span>
+  </div>
+
+  <div class="canvas-container" id="canvasContainer">
+    <canvas id="whiteboard" width="1000" height="600"></canvas>
+  </div>
+
+  <script src="canvas.js"></script>
+</body>
+</html>
