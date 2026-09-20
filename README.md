@@ -119,3 +119,6 @@ assignment-11-whiteboard-socket/
 
 - Submit your GitHub repository: `itm-assignment-11-whiteboard-socket`.
 - Provide a link to a live demo or a screen recording displaying 2 browser windows drawing together simultaneously.
+
+<img width="1470" height="781" alt="image" src="https://github.com/user-attachments/assets/6e8691c1-05a5-46c8-9776-f695758b1609" />
+
