@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Collaborative Whiteboard</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="toolbar">
+    <input type="color" id="colorPicker" value="#000000" />
+    <input type="range" id="sizePicker" min="1" max="20" value="3" />
+    <button id="clearBtn">Clear Canvas</button>
+    <button id="undoBtn">Undo</button>
+    <span id="boardLabel"></span>
+  </div>
+
+  <div id="canvasWrapper">
+    <canvas id="board"></canvas>
+  </div>
+
+  <div id="userList"></div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="canvas.js"></script>
+</body>
+</html>
