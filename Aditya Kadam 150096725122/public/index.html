@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Real-Time Collaborative Whiteboard</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app">
+    <header class="header">
+      <h1>Collaborative Whiteboard</h1>
+      <div class="user-info">
+        <span id="board-name"></span>
+        <span id="user-count">0 users</span>
+      </div>
+    </header>
+
+    <div class="toolbar">
+      <div class="tool-group">
+        <label for="color-picker">Color:</label>
+        <input type="color" id="color-picker" value="#000000">
+      </div>
+      
+      <div class="tool-group">
+        <label for="brush-size">Size:</label>
+        <input type="range" id="brush-size" min="1" max="50" value="3">
+        <span id="brush-size-display">3px</span>
+      </div>
+
+      <div class="tool-group">
+        <label for="brush-type">Brush:</label>
+        <select id="brush-type">
+          <option value="round">Round</option>
+          <option value="square">Square</option>
+        </select>
+      </div>
+
+      <div class="tool-group buttons">
+        <button id="undo-btn" class="btn btn-warning">Undo</button>
+        <button id="clear-btn" class="btn btn-danger">Clear Canvas</button>
+      </div>
+    </div>
+
+    <div class="canvas-container">
+      <canvas id="whiteboard"></canvas>
+      <div id="cursors"></div>
+    </div>
+
+    <div class="users-panel">
+      <h3>Active Users</h3>
+      <ul id="users-list"></ul>
+    </div>
+  </div>
+
+  <div id="join-modal" class="modal">
+    <div class="modal-content">
+      <h2>Join Whiteboard</h2>
+      <form id="join-form">
+        <div class="form-group">
+          <label for="username">Your Name:</label>
+          <input type="text" id="username" required placeholder="Enter your name">
+        </div>
+        <div class="form-group">
+          <label for="user-color">Your Color:</label>
+          <input type="color" id="user-color" value="#ff5722">
+        </div>
+        <button type="submit" class="btn btn-primary">Join Board</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="canvas.js"></script>
+</body>
+</html>
