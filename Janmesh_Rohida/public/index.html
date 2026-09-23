@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Real-Time Collaborative Whiteboard</title>
+  <meta name="description" content="High-performance real-time multi-user collaborative canvas powered by Node.js, Express, Socket.io, and HTML5 Canvas API.">
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Top Navigation Header -->
+    <header class="app-header">
+      <div class="header-brand">
+        <div class="brand-icon">
+          <i class="fa-solid fa-paintbrush"></i>
+        </div>
+        <div class="brand-title">
+          <h1>Collaborative Whiteboard</h1>
+          <span class="subtitle">Real-time vector stroke streaming</span>
+        </div>
+      </div>
+
+      <div class="header-center">
+        <div class="room-pill">
+          <i class="fa-solid fa-door-open"></i>
+          <span>Room:</span>
+          <strong id="room-id-display">DESIGN_101</strong>
+        </div>
+        <button id="copy-room-btn" class="btn btn-secondary" title="Copy invitation URL">
+          <i class="fa-regular fa-copy"></i>
+          <span>Share Room</span>
+        </button>
+      </div>
+
+      <div class="header-right">
+        <div class="user-profile-badge">
+          <span class="user-color-dot" id="current-user-dot"></span>
+          <span id="current-user-name" class="user-name">Guest</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Workspace Layout -->
+    <div class="workspace">
+      <!-- Left Floating Toolbar -->
+      <aside class="toolbar-panel">
+        <!-- Tools Section -->
+        <div class="tool-group">
+          <label class="group-label">Tools</label>
+          <div class="tool-buttons">
+            <button id="tool-pen" class="tool-btn active" title="Pen Tool">
+              <i class="fa-solid fa-pen-nib"></i>
+              <span>Pen</span>
+            </button>
+            <button id="tool-eraser" class="tool-btn" title="Eraser Tool">
+              <i class="fa-solid fa-eraser"></i>
+              <span>Eraser</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Brush Size Selector -->
+        <div class="tool-group">
+          <label class="group-label">Brush Size: <span id="size-display">4px</span></label>
+          <div class="size-options">
+            <button class="size-btn" data-size="2" title="Fine (2px)"><span class="dot dot-sm"></span></button>
+            <button class="size-btn active" data-size="4" title="Medium (4px)"><span class="dot dot-md"></span></button>
+            <button class="size-btn" data-size="8" title="Thick (8px)"><span class="dot dot-lg"></span></button>
+            <button class="size-btn" data-size="16" title="Extra Thick (16px)"><span class="dot dot-xl"></span></button>
+          </div>
+          <input type="range" id="brush-size-slider" min="1" max="40" value="4" class="size-slider">
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Palette & Color Picker -->
+        <div class="tool-group">
+          <label class="group-label">Color Palette</label>
+          <div class="color-palette">
+            <button class="color-swatch active" data-color="#3B2A20" style="background-color: #3B2A20;" title="Espresso"></button>
+            <button class="color-swatch" data-color="#6F4E37" style="background-color: #6F4E37;" title="Coffee"></button>
+            <button class="color-swatch" data-color="#A9745B" style="background-color: #A9745B;" title="Terracotta"></button>
+            <button class="color-swatch" data-color="#D2B48C" style="background-color: #D2B48C;" title="Tan"></button>
+            <button class="color-swatch" data-color="#000000" style="background-color: #000000;" title="Black"></button>
+            <button class="color-swatch" data-color="#C0392B" style="background-color: #C0392B;" title="Crimson"></button>
+            <button class="color-swatch" data-color="#27AE60" style="background-color: #27AE60;" title="Forest Green"></button>
+            <button class="color-swatch" data-color="#2980B9" style="background-color: #2980B9;" title="Deep Blue"></button>
+          </div>
+          <div class="custom-color-wrapper">
+            <label for="custom-color-picker" class="custom-color-label">
+              <i class="fa-solid fa-eye-dropper"></i> Custom Color
+            </label>
+            <input type="color" id="custom-color-picker" value="#3B2A20">
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Canvas Actions (Undo / Clear) -->
+        <div class="tool-group actions-group">
+          <label class="group-label">Actions</label>
+          <button id="btn-undo" class="btn btn-action" title="Undo last stroke action">
+            <i class="fa-solid fa-rotate-left"></i>
+            <span>Undo Stroke</span>
+          </button>
+          <button id="btn-clear" class="btn btn-danger" title="Clear canvas for all users">
+            <i class="fa-solid fa-trash-can"></i>
+            <span>Clear Canvas</span>
+          </button>
+        </div>
+      </aside>
+
+      <!-- Center Canvas Container -->
+      <main class="canvas-viewport">
+        <div class="canvas-frame">
+          <canvas id="whiteboard"></canvas>
+          <!-- Remote Collaborator Cursors Overlay -->
+          <div id="cursor-overlay"></div>
+        </div>
+      </main>
+
+      <!-- Right Panel: Active Users & Stats -->
+      <aside class="sidebar-panel">
+        <div class="panel-header">
+          <i class="fa-solid fa-users"></i>
+          <h3>Active Peers (<span id="user-count">0</span>)</h3>
+        </div>
+        <ul id="users-list" class="users-list">
+          <!-- Dynamically populated user list -->
+        </ul>
+
+        <div class="panel-footer-info">
+          <div class="info-card">
+            <i class="fa-solid fa-circle-info"></i>
+            <p>Drawings are streamed in real-time across participants in <strong><span id="info-board-id">DESIGN_101</span></strong>.</p>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <!-- Notification Toast container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Socket.io client script -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="canvas.js"></script>
+</body>
+</html>
