@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CollabBoard – Real-Time Whiteboard</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="toolbar">
+    <div class="brand">
+      <span class="logo">🖊</span>
+      <div class="brand-info">
+        <h1>CollabBoard</h1>
+        <span class="board-name" id="boardName">board: —</span>
+      </div>
+    </div>
+
+    <div class="tool-group">
+      <label class="field">
+        <span>Name</span>
+        <input type="text" id="username" maxlength="24" placeholder="Anonymous" />
+      </label>
+      <label class="field field-color">
+        <span>Color</span>
+        <input type="color" id="brushColor" value="#ff5722" />
+      </label>
+      <label class="field field-size">
+        <span>Brush</span>
+        <input type="range" id="brushSize" min="1" max="20" value="3" />
+        <output id="brushSizeLabel">3</output>
+      </label>
+    </div>
+
+    <div class="tool-group">
+      <button id="undoBtn" class="btn" title="Undo last stroke (Ctrl+Z)">↩ Undo</button>
+      <button id="clearBtn" class="btn btn-danger" title="Clear the board for everyone">🗑 Clear</button>
+    </div>
+
+    <div class="status">
+      <span class="dot" id="connDot"></span>
+      <span id="connText">connecting…</span>
+    </div>
+  </header>
+
+  <main class="stage">
+    <div class="canvas-wrap" id="canvasWrap">
+      <canvas id="board" width="1200" height="700"></canvas>
+      <div id="cursorLayer"></div>
+    </div>
+
+    <aside class="sidebar">
+      <h2>Collaborators <span id="userCount">(0)</span></h2>
+      <ul id="userList" class="user-list"></ul>
+
+      <div class="hint">
+        <h3>How to test</h3>
+        <p>
+          Open this page in a second window with the same board URL
+          (<span class="mono">?board=demo</span>) and draw — strokes, undo
+          and clears stay in sync live.
+        </p>
+      </div>
+    </aside>
+  </main>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="canvas.js"></script>
+</body>
+</html>

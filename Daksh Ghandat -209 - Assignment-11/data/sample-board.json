@@ -1,0 +1,64 @@
+{
+  "_id": "665d1f2a8c1b2a3d4e5f6070",
+  "boardId": "demo",
+  "strokes": [
+    {
+      "id": "path-alice-1",
+      "userId": "alice-sample-socket-id",
+      "username": "Alice",
+      "color": "#ff5722",
+      "segments": [
+        {
+          "prevX": 120,
+          "prevY": 80,
+          "currX": 125,
+          "currY": 85,
+          "color": "#ff5722",
+          "size": 4
+        },
+        {
+          "prevX": 125,
+          "prevY": 85,
+          "currX": 140,
+          "currY": 110,
+          "color": "#ff5722",
+          "size": 4
+        },
+        {
+          "prevX": 140,
+          "prevY": 110,
+          "currX": 165,
+          "currY": 125,
+          "color": "#ff5722",
+          "size": 4
+        }
+      ]
+    },
+    {
+      "id": "path-bob-2",
+      "userId": "bob-sample-socket-id",
+      "username": "Bob",
+      "color": "#2196f3",
+      "segments": [
+        {
+          "prevX": 400,
+          "prevY": 300,
+          "currX": 420,
+          "currY": 340,
+          "color": "#2196f3",
+          "size": 6
+        },
+        {
+          "prevX": 420,
+          "prevY": 340,
+          "currX": 455,
+          "currY": 330,
+          "color": "#2196f3",
+          "size": 6
+        }
+      ]
+    }
+  ],
+  "createdAt": "2026-09-23T10:00:00.000Z",
+  "updatedAt": "2026-09-23T10:05:00.000Z"
+}
