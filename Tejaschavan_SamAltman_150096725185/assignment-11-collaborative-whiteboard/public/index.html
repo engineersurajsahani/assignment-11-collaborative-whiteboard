@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Real-Time Collaborative Whiteboard</title>
+  <meta name="description" content="Collaborative real-time canvas whiteboard powered by Node.js, Express, and Socket.io.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Top Navigation & Controls Toolbar -->
+  <header class="app-header">
+    <div class="toolbar-section board-meta">
+      <div class="logo">
+        <span class="logo-icon">🎨</span>
+        <span class="logo-title">DrawSync</span>
+      </div>
+      <div class="room-tag" id="roomTag" title="Click to copy invite link">
+        <span class="room-label">ROOM:</span>
+        <span class="room-id" id="currentRoomDisplay">loading...</span>
+        <span class="copy-hint" id="copyHint">📋 Copy Link</span>
+      </div>
+    </div>
+
+    <!-- Drawing Tools -->
+    <div class="toolbar-section tools-group">
+      <!-- Brush / Eraser Mode -->
+      <div class="btn-group">
+        <button id="brushToolBtn" class="tool-btn active" title="Pen Brush (P)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 19l7-7 3 3-7 7-3-3z"></path>
+            <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path>
+            <path d="M2 2l7.586 7.586"></path>
+            <circle cx="11" cy="11" r="2"></circle>
+          </svg>
+          <span>Draw</span>
+        </button>
+        <button id="eraserToolBtn" class="tool-btn" title="Eraser (E)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"></path>
+            <path d="M22 21H7"></path>
+            <path d="m5 11 9 9"></path>
+          </svg>
+          <span>Eraser</span>
+        </button>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Color Palette & Custom Picker -->
+      <div class="color-picker-wrapper">
+        <label for="colorPicker" class="color-preview" id="colorPreview" title="Select Custom Color"></label>
+        <input type="color" id="colorPicker" value="#3B82F6">
+        <div class="preset-colors">
+          <button class="color-dot active" data-color="#1E293B" style="background:#1E293B;" title="Charcoal"></button>
+          <button class="color-dot" data-color="#3B82F6" style="background:#3B82F6;" title="Blue"></button>
+          <button class="color-dot" data-color="#EF4444" style="background:#EF4444;" title="Red"></button>
+          <button class="color-dot" data-color="#10B981" style="background:#10B981;" title="Green"></button>
+          <button class="color-dot" data-color="#F59E0B" style="background:#F59E0B;" title="Amber"></button>
+          <button class="color-dot" data-color="#8B5CF6" style="background:#8B5CF6;" title="Purple"></button>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Stroke Size Slider -->
+      <div class="size-picker-wrapper">
+        <span class="size-icon">📏</span>
+        <input type="range" id="brushSizeSlider" min="1" max="40" value="4" title="Adjust Brush Width">
+        <span class="size-val" id="brushSizeVal">4px</span>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Actions: Undo and Clear -->
+      <div class="btn-group">
+        <button id="undoBtn" class="action-btn" title="Undo Last Stroke (Ctrl+Z)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 7v6h6"></path>
+            <path d="M21 17a9 9 0 00-9-9 9 9 0 00-6 2.3L3 13"></path>
+          </svg>
+          <span>Undo</span>
+        </button>
+        <button id="clearBtn" class="action-btn danger" title="Clear Entire Canvas">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 6h18"></path>
+            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+          </svg>
+          <span>Clear</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Active Collaborators Panel Indicator -->
+    <div class="toolbar-section user-section">
+      <div class="active-users-pill" id="activeUsersPill" title="Active Collaborators">
+        <span class="status-dot"></span>
+        <span class="users-count" id="activeUsersCount">1 online</span>
+        <div class="users-popover" id="usersListContainer">
+          <div class="popover-header">Active Collaborators</div>
+          <ul id="usersList" class="users-list"></ul>
+        </div>
+      </div>
+      <div class="my-badge" id="myBadge" title="Your Profile">
+        <span class="avatar-dot" id="myAvatarDot"></span>
+        <span class="my-name" id="myNameDisplay">You</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Canvas Container -->
+  <main id="canvasContainer" class="canvas-container">
+    <canvas id="whiteboardCanvas"></canvas>
+    <!-- Overlay for dynamic peer cursor tracking -->
+    <div id="cursorOverlay" class="cursor-overlay"></div>
+  </main>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+  <!-- Join Room / Username Modal (shown if username not provided in query) -->
+  <div id="joinModal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-icon">🎨</div>
+        <h2>Join Whiteboard</h2>
+        <p>Enter your display name to start collaborating in real time.</p>
+      </div>
+      <form id="joinForm" class="modal-form">
+        <div class="form-group">
+          <label for="usernameInput">Your Name</label>
+          <input type="text" id="usernameInput" placeholder="e.g. Alice Cooper" maxlength="24" required autofocus>
+        </div>
+        <div class="form-group">
+          <label for="boardIdInput">Room Name</label>
+          <input type="text" id="boardIdInput" placeholder="e.g. demo" maxlength="32" required>
+        </div>
+        <div class="form-group">
+          <label>Pick Avatar Color</label>
+          <div class="color-options" id="modalColorOptions">
+            <button type="button" class="modal-color-dot selected" data-color="#3B82F6" style="background:#3B82F6;"></button>
+            <button type="button" class="modal-color-dot" data-color="#10B981" style="background:#10B981;"></button>
+            <button type="button" class="modal-color-dot" data-color="#F59E0B" style="background:#F59E0B;"></button>
+            <button type="button" class="modal-color-dot" data-color="#EF4444" style="background:#EF4444;"></button>
+            <button type="button" class="modal-color-dot" data-color="#8B5CF6" style="background:#8B5CF6;"></button>
+            <button type="button" class="modal-color-dot" data-color="#EC4899" style="background:#EC4899;"></button>
+          </div>
+        </div>
+        <button type="submit" class="submit-btn" id="joinSubmitBtn">Enter Whiteboard</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Socket.io client script served by server -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="canvas.js"></script>
+</body>
+</html>
