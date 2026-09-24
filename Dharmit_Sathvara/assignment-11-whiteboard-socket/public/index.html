@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Real-Time Collaborative Whiteboard</title>
+  <link rel="stylesheet" href="styles.css" />
+  <!-- Google Fonts for modern clean typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- App Container -->
+  <div id="app-container">
+    <!-- Top Floating Toolbar -->
+    <header class="toolbar" id="toolbar">
+      <!-- Board Info & Switcher -->
+      <div class="toolbar-section board-info-section">
+        <div class="brand-badge">
+          <span class="brand-icon">🎨</span>
+          <span class="brand-title">Whiteboard</span>
+        </div>
+        <div class="room-pill" id="room-pill" title="Current Room / Board ID">
+          <span class="room-indicator"></span>
+          <span class="room-label">Room:</span>
+          <strong id="board-name-display">demo</strong>
+          <button class="btn-icon-tiny" id="btn-copy-link" title="Copy Board Invite Link">
+            📋
+          </button>
+        </div>
+      </div>
+
+      <div class="toolbar-divider"></div>
+
+      <!-- Drawing Tools -->
+      <div class="toolbar-section tools-section">
+        <!-- Pen Tool -->
+        <button class="btn-tool active" id="tool-pen" title="Pen Tool (P)">
+          <span class="tool-icon">✏️</span>
+          <span class="tool-label">Draw</span>
+        </button>
+
+        <!-- Eraser Tool -->
+        <button class="btn-tool" id="tool-eraser" title="Eraser Tool (E)">
+          <span class="tool-icon">🧹</span>
+          <span class="tool-label">Eraser</span>
+        </button>
+
+        <!-- Color Picker & Quick Swatches -->
+        <div class="color-picker-wrapper" title="Choose Color">
+          <input type="color" id="color-picker" value="#2563eb" />
+          <div class="color-swatches" id="color-swatches">
+            <button class="color-swatch active" data-color="#1e293b" style="background-color: #1e293b;"></button>
+            <button class="color-swatch" data-color="#ef4444" style="background-color: #ef4444;"></button>
+            <button class="color-swatch" data-color="#10b981" style="background-color: #10b981;"></button>
+            <button class="color-swatch" data-color="#2563eb" style="background-color: #2563eb;"></button>
+            <button class="color-swatch" data-color="#8b5cf6" style="background-color: #8b5cf6;"></button>
+            <button class="color-swatch" data-color="#f59e0b" style="background-color: #f59e0b;"></button>
+          </div>
+        </div>
+
+        <!-- Brush Size Slider -->
+        <div class="size-slider-wrapper">
+          <span class="size-preview-dot" id="size-preview"></span>
+          <input type="range" id="brush-size" min="1" max="40" value="4" title="Brush Size" />
+          <span class="size-value" id="size-value">4px</span>
+        </div>
+      </div>
+
+      <div class="toolbar-divider"></div>
+
+      <!-- History & Reset Actions -->
+      <div class="toolbar-section actions-section">
+        <button class="btn-action" id="btn-undo" title="Undo Last Stroke (Ctrl+Z)">
+          <span class="btn-icon">↩️</span>
+          <span>Undo</span>
+        </button>
+        <button class="btn-action btn-danger" id="btn-clear" title="Clear Canvas For Everyone">
+          <span class="btn-icon">🗑️</span>
+          <span>Clear</span>
+        </button>
+      </div>
+
+      <div class="toolbar-divider"></div>
+
+      <!-- Active Collaborators -->
+      <div class="toolbar-section collaborators-section">
+        <div class="collaborators-header">
+          <span class="online-indicator"></span>
+          <span class="users-count" id="users-count">1 user</span>
+        </div>
+        <div class="avatar-group" id="avatar-group">
+          <!-- Avatars dynamically populated -->
+        </div>
+      </div>
+    </header>
+
+    <!-- Canvas Container -->
+    <div id="canvas-container">
+      <canvas id="whiteboard"></canvas>
+      <!-- Peer Collaborator Cursors Overlay -->
+      <div id="cursors-overlay"></div>
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div id="toast-container"></div>
+
+    <!-- Connection Status Badge -->
+    <div id="connection-status" class="status-badge connected">
+      <span class="status-dot"></span>
+      <span class="status-text">Connected</span>
+    </div>
+  </div>
+
+  <!-- User Setup Modal (Dialog on join) -->
+  <div id="user-modal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>✨ Join Whiteboard Room</h2>
+        <p>Collaborate in real time on a shared canvas.</p>
+      </div>
+      <form id="join-form">
+        <div class="form-group">
+          <label for="input-board">Board / Room ID</label>
+          <input type="text" id="input-board" placeholder="e.g. demo, project-x" required />
+        </div>
+        <div class="form-group">
+          <label for="input-username">Your Display Name</label>
+          <input type="text" id="input-username" placeholder="e.g. Alice, Bob" maxlength="24" autofocus />
+        </div>
+        <div class="form-group">
+          <label>Choose Avatar Color</label>
+          <div class="user-color-selection" id="user-color-selection">
+            <button type="button" class="user-color-btn active" data-color="#2563eb" style="background:#2563eb"></button>
+            <button type="button" class="user-color-btn" data-color="#ef4444" style="background:#ef4444"></button>
+            <button type="button" class="user-color-btn" data-color="#10b981" style="background:#10b981"></button>
+            <button type="button" class="user-color-btn" data-color="#8b5cf6" style="background:#8b5cf6"></button>
+            <button type="button" class="user-color-btn" data-color="#f59e0b" style="background:#f59e0b"></button>
+            <button type="button" class="user-color-btn" data-color="#ec4899" style="background:#ec4899"></button>
+            <button type="button" class="user-color-btn" data-color="#06b6d4" style="background:#06b6d4"></button>
+            <button type="button" class="user-color-btn" data-color="#14b8a6" style="background:#14b8a6"></button>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button type="submit" class="btn-primary">Join Room</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Socket.io client script served automatically by socket.io server -->
+  <script src="/socket.io/socket.io.js"></script>
+  <!-- Client Application Logic -->
+  <script src="canvas.js"></script>
+</body>
+</html>
