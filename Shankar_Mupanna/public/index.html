@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Real-Time Collaborative Whiteboard</title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- FontAwesome for crisp toolbar icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Socket.io client script served automatically by socket.io server -->
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header Bar -->
+    <header class="header">
+      <div class="brand">
+        <i class="fa-solid fa-paintbrush brand-icon"></i>
+        <h1>Collaborative Whiteboard</h1>
+        <span class="room-badge" id="roomBadge">Room: DESIGN_101</span>
+      </div>
+
+      <div class="header-right">
+        <!-- Room Selector Form -->
+        <div class="room-selector">
+          <input type="text" id="roomInput" placeholder="Room ID (e.g. DESIGN_101)" value="DESIGN_101">
+          <button id="joinRoomBtn" class="btn btn-secondary">Switch Room</button>
+        </div>
+
+        <!-- User Profile Info -->
+        <div class="user-profile">
+          <div class="color-badge" id="myColorBadge" style="background-color: #ff5722;"></div>
+          <span id="myUsernameDisplay" class="username-display">Alice</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="workspace">
+      <!-- Floating Toolbar -->
+      <div class="toolbar">
+        <div class="tool-group">
+          <button id="toolPencil" class="tool-btn active" title="Pencil">
+            <i class="fa-solid fa-pen-nib"></i>
+          </button>
+          <button id="toolEraser" class="tool-btn" title="Eraser">
+            <i class="fa-solid fa-eraser"></i>
+          </button>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Color Palette -->
+        <div class="tool-group color-palette">
+          <div class="color-swatch active" data-color="#1e293b" style="background-color: #1e293b;"></div>
+          <div class="color-swatch" data-color="#ef4444" style="background-color: #ef4444;"></div>
+          <div class="color-swatch" data-color="#f59e0b" style="background-color: #f59e0b;"></div>
+          <div class="color-swatch" data-color="#10b981" style="background-color: #10b981;"></div>
+          <div class="color-swatch" data-color="#3b82f6" style="background-color: #3b82f6;"></div>
+          <div class="color-swatch" data-color="#8b5cf6" style="background-color: #8b5cf6;"></div>
+          <div class="color-picker-wrapper">
+            <input type="color" id="customColorPicker" value="#1e293b" title="Custom Color">
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Brush Size Slider -->
+        <div class="tool-group size-picker">
+          <i class="fa-solid fa-circle size-icon-sm"></i>
+          <input type="range" id="brushSize" min="1" max="40" value="4">
+          <i class="fa-solid fa-circle size-icon-lg"></i>
+          <span id="sizeValue" class="size-value">4px</span>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Actions -->
+        <div class="tool-group">
+          <button id="undoBtn" class="tool-btn" title="Undo Last Stroke (draw:undo)">
+            <i class="fa-solid fa-rotate-left"></i>
+            <span>Undo</span>
+          </button>
+          <button id="clearBtn" class="tool-btn danger" title="Clear Canvas (board:clear)">
+            <i class="fa-solid fa-trash-can"></i>
+            <span>Clear</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Active Users Sidebar / Floating Overlay -->
+      <div class="active-users-panel">
+        <h3><i class="fa-solid fa-users"></i> Online (<span id="userCount">0</span>)</h3>
+        <div id="usersList" class="users-list">
+          <!-- Dynamic user pills -->
+        </div>
+      </div>
+
+      <!-- Canvas Container -->
+      <div class="canvas-container" id="canvasContainer">
+        <canvas id="whiteboardCanvas"></canvas>
+        <!-- Overlay container for live collaborator cursors -->
+        <div id="cursorOverlay" class="cursor-overlay"></div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Join Modal -->
+  <div id="joinModal" class="modal-backdrop">
+    <div class="modal">
+      <h2><i class="fa-solid fa-display"></i> Join Whiteboard Session</h2>
+      <div class="form-group">
+        <label for="modalUsername">Your Name</label>
+        <input type="text" id="modalUsername" placeholder="Enter your name (e.g. Alice)">
+      </div>
+      <div class="form-group">
+        <label for="modalBoardId">Board Room ID</label>
+        <input type="text" id="modalBoardId" value="DESIGN_101" placeholder="Board ID (e.g. DESIGN_101)">
+      </div>
+      <div class="form-group">
+        <label>Pick User Avatar Color</label>
+        <div class="user-color-selection">
+          <button class="color-opt active" data-color="#ff5722" style="background-color: #ff5722;"></button>
+          <button class="color-opt" data-color="#00bcd4" style="background-color: #00bcd4;"></button>
+          <button class="color-opt" data-color="#9c27b0" style="background-color: #9c27b0;"></button>
+          <button class="color-opt" data-color="#4caf50" style="background-color: #4caf50;"></button>
+          <button class="color-opt" data-color="#ffb300" style="background-color: #ffb300;"></button>
+          <button class="color-opt" data-color="#e91e63" style="background-color: #e91e63;"></button>
+        </div>
+      </div>
+      <button id="startBtn" class="btn btn-primary btn-block">Join Canvas</button>
+    </div>
+  </div>
+
+  <script src="canvas.js"></script>
+</body>
+</html>
