@@ -88,11 +88,8 @@ io.on('connection', (socket) => {
 // Start Server
 if (require.main === module) {
   server.listen(PORT, () => {
-    console.log(`=======================================================`);
     console.log(`🎨 Real-Time Whiteboard Server Running on port ${PORT}`);
     console.log(`📡 URL: http://localhost:${PORT}`);
-    console.log(`👨‍💻 Student: Pratik Swain (150096725184)`);
-    console.log(`=======================================================`);
   });
 }
 
