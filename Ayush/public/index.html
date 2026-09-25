@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Collaborative Whiteboard</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="join-screen" class="join-screen">
+    <div class="join-card">
+      <h1>🎨 Collaborative Whiteboard</h1>
+      <p>Draw together in real time.</p>
+      <label for="username-input">Your name</label>
+      <input id="username-input" type="text" placeholder="e.g. Alice" maxlength="20" />
+      <label for="board-input">Board ID</label>
+      <input id="board-input" type="text" placeholder="e.g. DESIGN_101" maxlength="30" />
+      <button id="join-btn">Join Board</button>
+    </div>
+  </div>
+
+  <div id="app" class="app hidden">
+    <header class="toolbar">
+      <div class="toolbar-group">
+        <span class="board-label">Board: <strong id="board-name"></strong></span>
+      </div>
+      <div class="toolbar-group">
+        <input id="color-picker" type="color" value="#111111" title="Stroke color" />
+        <input id="size-picker" type="range" min="1" max="30" value="3" title="Stroke size" />
+        <span id="size-label">3px</span>
+      </div>
+      <div class="toolbar-group">
+        <button id="undo-btn" title="Undo last stroke">↩ Undo</button>
+        <button id="clear-btn" title="Clear canvas">🗑 Clear</button>
+      </div>
+      <div class="toolbar-group">
+        <div id="users-list" class="users-list"></div>
+      </div>
+    </header>
+
+    <main class="canvas-wrapper">
+      <canvas id="board-canvas"></canvas>
+      <div id="cursor-layer" class="cursor-layer"></div>
+    </main>
+
+    <div id="toast" class="toast hidden"></div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="canvas.js"></script>
+</body>
+</html>
