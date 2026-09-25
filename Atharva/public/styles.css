@@ -1,0 +1,828 @@
+:root {
+  --bg: #f5f6fb;
+  --surface: #ffffff;
+  --surface-light: #faf9ff;
+
+  --border: #dedee8;
+
+  --text: #25243a;
+  --text-dim: #625f76;
+  --text-muted: #858196;
+
+  --accent: #5b4bdb;
+  --accent-dark: #4637b8;
+  --accent-light: #eeecff;
+
+  --pink: #e14b9a;
+
+  --green: #22c55e;
+  --danger: #e5484d;
+
+  --radius: 10px;
+
+  --shadow: 0 3px 14px rgba(35, 30, 80, 0.09);
+}
+
+
+/* =========================================================
+   BASE
+========================================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+
+  height: 100%;
+
+  font-family:
+    "Segoe UI",
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
+
+  font-size: 16px;
+
+  background: var(--bg);
+
+  color: var(--text);
+}
+
+.hidden {
+  display: none !important;
+}
+
+
+/* =========================================================
+   JOIN OVERLAY
+========================================================= */
+
+.overlay {
+  position: fixed;
+
+  inset: 0;
+
+  background:
+    radial-gradient(
+      circle at 10% 15%,
+      rgba(91, 75, 219, 0.08),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 90% 85%,
+      rgba(225, 75, 154, 0.07),
+      transparent 28%
+    ),
+    linear-gradient(
+      135deg,
+      #eef0ff 0%,
+      #f7f6fc 50%,
+      #fff4fa 100%
+    );
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  z-index: 100;
+}
+
+
+/* =========================================================
+   JOIN CARD
+========================================================= */
+
+.join-card {
+  position: relative;
+
+  background: #ffffff;
+
+  border-radius: 18px;
+
+  padding: 36px 38px;
+
+  width: min(90vw, 400px);
+
+  border: 1px solid #e2e1eb;
+
+  box-shadow:
+    0 18px 45px rgba(55, 45, 130, 0.14);
+
+  animation: cardAppear 0.4s ease;
+}
+
+@keyframes cardAppear {
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(18px)
+      scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0)
+      scale(1);
+  }
+}
+
+
+/* =========================================================
+   JOIN TITLE
+========================================================= */
+
+.join-card h1 {
+  margin: 0 0 7px;
+
+  font-size: 1.65rem;
+
+  font-weight: 750;
+
+  letter-spacing: -0.3px;
+
+  color: #292641;
+}
+
+
+/* =========================================================
+   SUBTITLE
+========================================================= */
+
+.subtitle {
+  margin: 0 0 24px;
+
+  color: var(--text-dim);
+
+  font-size: 1rem;
+
+  line-height: 1.5;
+}
+
+
+/* =========================================================
+   FORM LABELS
+========================================================= */
+
+.join-card label {
+  display: block;
+
+  font-size: 0.9rem;
+
+  font-weight: 700;
+
+  color: #37334e;
+
+  margin: 16px 0 8px;
+}
+
+
+/* =========================================================
+   TEXT INPUTS
+========================================================= */
+
+.join-card input[type="text"] {
+  width: 100%;
+
+  padding: 13px 15px;
+
+  border: 1px solid #d8d6e2;
+
+  border-radius: 9px;
+
+  background: #ffffff;
+
+  color: #29263e;
+
+  font-size: 1rem;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.join-card input[type="text"]:hover {
+  border-color: #bcb8d0;
+}
+
+.join-card input[type="text"]:focus {
+  border-color: var(--accent);
+
+  background: #ffffff;
+
+  box-shadow:
+    0 0 0 3px rgba(91, 75, 219, 0.12);
+}
+
+.join-card input[type="text"]::placeholder {
+  color: #9995a8;
+}
+
+
+/* =========================================================
+   COLOR INPUT
+========================================================= */
+
+.join-card input[type="color"] {
+  width: 100%;
+
+  height: 40px;
+
+  border: 1px solid var(--border);
+
+  border-radius: 8px;
+
+  padding: 2px;
+
+  background: #ffffff;
+
+  cursor: pointer;
+}
+
+
+/* =========================================================
+   JOIN BUTTON
+========================================================= */
+
+#join-btn {
+  margin-top: 25px;
+
+  width: 100%;
+
+  padding: 13px;
+
+  border: none;
+
+  border-radius: 9px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #5142d4,
+      #6c4ce6
+    );
+
+  color: #ffffff;
+
+  font-size: 1rem;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 6px 15px rgba(81, 66, 212, 0.25);
+
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    filter 0.15s ease;
+}
+
+#join-btn:hover {
+  transform: translateY(-1px);
+
+  filter: brightness(1.04);
+
+  box-shadow:
+    0 9px 20px rgba(81, 66, 212, 0.3);
+}
+
+#join-btn:active {
+  transform: translateY(0);
+}
+
+
+/* =========================================================
+   MAIN APP
+========================================================= */
+
+.app {
+  display: flex;
+
+  flex-direction: column;
+
+  height: 100vh;
+
+  background: #f7f7fb;
+}
+
+
+/* =========================================================
+   TOOLBAR
+========================================================= */
+
+.toolbar {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 14px;
+
+  flex-wrap: wrap;
+
+  padding: 11px 18px;
+
+  background: #ffffff;
+
+  border-bottom: 1px solid #e3e2ea;
+
+  box-shadow: var(--shadow);
+
+  z-index: 10;
+}
+
+.toolbar-group {
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+}
+
+
+/* =========================================================
+   BOARD LABEL
+========================================================= */
+
+.board-label {
+  font-size: 0.95rem;
+
+  color: #5c5870;
+
+  background: #f3f1ff;
+
+  border: 1px solid #e2defc;
+
+  padding: 7px 12px;
+
+  border-radius: 8px;
+}
+
+.board-label strong {
+  color: #4f3bc4;
+
+  font-weight: 750;
+}
+
+
+/* =========================================================
+   CONNECTION DOT
+========================================================= */
+
+.dot {
+  width: 10px;
+
+  height: 10px;
+
+  border-radius: 50%;
+
+  display: inline-block;
+}
+
+.dot-online {
+  background: #22c55e;
+
+  box-shadow:
+    0 0 0 3px rgba(34, 197, 94, 0.14),
+    0 0 8px rgba(34, 197, 94, 0.35);
+}
+
+.dot-offline {
+  background: #c4c5ce;
+}
+
+
+/* =========================================================
+   TOOL LABEL
+========================================================= */
+
+.tool-label {
+  display: flex;
+
+  align-items: center;
+
+  gap: 7px;
+
+  font-size: 0.9rem;
+
+  font-weight: 650;
+
+  color: #555169;
+}
+
+
+/* =========================================================
+   COLOR PICKER
+========================================================= */
+
+.tool-label input[type="color"] {
+  width: 34px;
+
+  height: 30px;
+
+  border: 1px solid #d9d7e4;
+
+  border-radius: 7px;
+
+  padding: 2px;
+
+  background: #ffffff;
+
+  cursor: pointer;
+}
+
+
+/* =========================================================
+   BRUSH SIZE
+========================================================= */
+
+#brush-size {
+  width: 90px;
+
+  accent-color: var(--accent);
+
+  cursor: pointer;
+}
+
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+.btn {
+  border: none;
+
+  border-radius: 8px;
+
+  padding: 9px 15px;
+
+  font-size: 0.9rem;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease,
+    filter 0.12s ease;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+
+/* =========================================================
+   UNDO BUTTON
+========================================================= */
+
+.btn-secondary {
+  background: #efedff;
+
+  color: #5141c5;
+
+  border: 1px solid #ddd8fa;
+}
+
+.btn-secondary:hover {
+  background: #e8e5ff;
+
+  box-shadow:
+    0 4px 10px rgba(81, 65, 197, 0.1);
+}
+
+
+/* =========================================================
+   CLEAR BUTTON
+========================================================= */
+
+.btn-danger {
+  background: #e5484d;
+
+  color: #ffffff;
+
+  box-shadow:
+    0 4px 10px rgba(229, 72, 77, 0.18);
+}
+
+.btn-danger:hover {
+  filter: brightness(1.06);
+
+  box-shadow:
+    0 6px 14px rgba(229, 72, 77, 0.25);
+}
+
+
+/* =========================================================
+   USER LIST
+========================================================= */
+
+.user-list {
+  display: flex;
+
+  gap: 6px;
+
+  flex-wrap: wrap;
+
+  max-width: 420px;
+}
+
+
+/* =========================================================
+   USER CHIP
+========================================================= */
+
+.user-chip {
+  display: flex;
+
+  align-items: center;
+
+  gap: 7px;
+
+  background: #f7f6fc;
+
+  border: 1px solid #e1dfea;
+
+  border-radius: 999px;
+
+  padding: 5px 11px 5px 7px;
+
+  font-size: 0.82rem;
+
+  font-weight: 650;
+
+  color: #403c57;
+
+  box-shadow:
+    0 2px 5px rgba(50, 45, 100, 0.05);
+}
+
+.user-chip .swatch {
+  width: 11px;
+
+  height: 11px;
+
+  border-radius: 50%;
+
+  display: inline-block;
+
+  box-shadow:
+    0 0 0 2px #ffffff,
+    0 1px 4px rgba(0, 0, 0, 0.2);
+}
+
+
+/* =========================================================
+   CANVAS AREA
+========================================================= */
+
+.canvas-wrap {
+  position: relative;
+
+  flex: 1;
+
+  overflow: hidden;
+
+  background-color: #ffffff;
+
+  background-image:
+    linear-gradient(
+      rgba(91, 75, 219, 0.045) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      rgba(91, 75, 219, 0.045) 1px,
+      transparent 1px
+    );
+
+  background-size: 24px 24px;
+}
+
+
+/* =========================================================
+   CANVAS
+========================================================= */
+
+#board-canvas {
+  position: absolute;
+
+  top: 0;
+
+  left: 0;
+
+  width: 100%;
+
+  height: 100%;
+
+  cursor: crosshair;
+
+  touch-action: none;
+
+  z-index: 1;
+}
+
+
+/* =========================================================
+   REMOTE CURSOR LAYER
+========================================================= */
+
+#cursor-layer {
+  position: absolute;
+
+  inset: 0;
+
+  pointer-events: none;
+
+  z-index: 2;
+}
+
+
+/* =========================================================
+   REMOTE CURSOR
+========================================================= */
+
+.remote-cursor {
+  position: absolute;
+
+  top: 0;
+
+  left: 0;
+
+  transform: translate(-2px, -2px);
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: flex-start;
+
+  transition:
+    transform 0.06s linear;
+
+  pointer-events: none;
+}
+
+
+/* Cursor dot */
+
+.remote-cursor .dot-cursor {
+  width: 13px;
+
+  height: 13px;
+
+  border-radius: 50% 50% 50% 0;
+
+  border: 2px solid #ffffff;
+
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+
+/* Cursor name */
+
+.remote-cursor .label {
+  margin-top: 3px;
+
+  font-size: 0.75rem;
+
+  font-weight: 700;
+
+  color: #ffffff;
+
+  padding: 3px 8px;
+
+  border-radius: 6px;
+
+  white-space: nowrap;
+
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.18);
+}
+
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+.toast {
+  position: absolute;
+
+  bottom: 22px;
+
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  background: #292641;
+
+  color: #ffffff;
+
+  padding: 9px 17px;
+
+  border-radius: 999px;
+
+  font-size: 0.85rem;
+
+  font-weight: 600;
+
+  z-index: 20;
+
+  box-shadow:
+    0 7px 20px rgba(30, 25, 70, 0.2);
+
+  animation: toastIn 0.25s ease;
+}
+
+@keyframes toastIn {
+  from {
+    opacity: 0;
+
+    transform:
+      translate(-50%, 8px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translate(-50%, 0);
+  }
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 800px) {
+
+  .toolbar {
+    padding: 10px;
+
+    gap: 8px;
+  }
+
+  .toolbar-group {
+    gap: 7px;
+  }
+
+  .user-list {
+    max-width: 280px;
+  }
+
+  .board-label {
+    font-size: 0.82rem;
+  }
+
+  .btn {
+    padding: 8px 11px;
+
+    font-size: 0.82rem;
+  }
+}
+
+
+@media (max-width: 600px) {
+
+  .toolbar {
+    justify-content: center;
+  }
+
+  .toolbar-group {
+    flex-wrap: wrap;
+
+    justify-content: center;
+  }
+
+  .user-list {
+    max-width: 100%;
+
+    justify-content: center;
+  }
+
+  .join-card {
+    padding: 30px 25px;
+  }
+
+  .join-card h1 {
+    font-size: 1.45rem;
+  }
+}
