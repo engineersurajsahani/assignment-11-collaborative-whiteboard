@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Collaborative Whiteboard</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="canvas.js" defer></script>
+  </head>
+  <body>
+    <header>
+      <h1>Collaborative Whiteboard</h1>
+      <div class="board-meta">
+        <span>Board: <strong id="board-name"></strong></span>
+        <span id="status" class="status offline">connecting...</span>
+      </div>
+    </header>
+
+    <div class="toolbar">
+      <label for="color">Color</label>
+      <input type="color" id="color" value="#000000" />
+
+      <label for="size">Size</label>
+      <input type="range" id="size" min="1" max="30" value="3" />
+      <span id="size-value">3</span>
+
+      <button id="undo">UNDO</button>
+      <button id="clear">CLEAR CANVAS</button>
+    </div>
+
+    <main>
+      <div class="canvas-wrap">
+        <canvas id="board" width="1280" height="720"></canvas>
+        <div id="cursors"></div>
+      </div>
+
+      <aside class="users">
+        <h2>Collaborators</h2>
+        <ul id="user-list"></ul>
+      </aside>
+    </main>
+  </body>
+</html>
