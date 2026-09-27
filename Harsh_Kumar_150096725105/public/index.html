@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Collaborative Whiteboard</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+  <div class="toolbar">
+    <div class="controls">
+      <input type="color" id="colorPicker" value="#000000">
+      <input type="range" id="sizePicker" min="1" max="20" value="3">
+      <button id="undoBtn">Undo</button>
+      <button id="clearBtn">Clear Canvas</button>
+    </div>
+    <div class="status">
+      <span id="usersCount">1 user(s) online</span>
+    </div>
+  </div>
+  
+  <div id="canvasContainer">
+    <canvas id="whiteboard"></canvas>
+    <div id="cursors"></div>
+  </div>
+
+  <script src="canvas.js"></script>
+</body>
+</html>
