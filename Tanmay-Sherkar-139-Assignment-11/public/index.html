@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Real-Time Collaborative Whiteboard</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+  <div class="app-container">
+    <header class="top-nav">
+      <div class="brand-section">
+        <div class="logo-icon">🎨</div>
+        <h1>CollabBoard</h1>
+        <div class="room-tag">
+          <span>Room:</span>
+          <strong id="currentRoomDisplay">DESIGN_101</strong>
+        </div>
+      </div>
+
+      <div class="users-section">
+        <span class="users-label">Collaborators:</span>
+        <div id="activeUsersList" class="active-users-list"></div>
+      </div>
+
+      <div class="user-profile">
+        <input type="text" id="usernameInput" value="Artist" maxlength="15" title="Change your display name">
+        <input type="color" id="userColorInput" value="#3b82f6" title="Change your avatar/cursor color">
+        <button id="switchRoomBtn" class="btn btn-secondary">Switch Room</button>
+      </div>
+    </header>
+
+    <div class="workspace">
+      <aside class="toolbar">
+        <div class="tool-group">
+          <label>Tools</label>
+          <div class="button-grid">
+            <button id="toolBrush" class="tool-btn active" data-tool="brush" title="Brush">✏️</button>
+            <button id="toolEraser" class="tool-btn" data-tool="eraser" title="Eraser">🧹</button>
+            <button id="toolLine" class="tool-btn" data-tool="line" title="Straight Line">📏</button>
+          </div>
+        </div>
+
+        <div class="tool-group">
+          <label>Color</label>
+          <input type="color" id="strokeColor" value="#1e293b" class="color-picker">
+          <div class="color-palette">
+            <button class="palette-swatch" style="background:#1e293b" data-color="#1e293b"></button>
+            <button class="palette-swatch" style="background:#ef4444" data-color="#ef4444"></button>
+            <button class="palette-swatch" style="background:#f59e0b" data-color="#f59e0b"></button>
+            <button class="palette-swatch" style="background:#10b981" data-color="#10b981"></button>
+            <button class="palette-swatch" style="background:#3b82f6" data-color="#3b82f6"></button>
+            <button class="palette-swatch" style="background:#8b5cf6" data-color="#8b5cf6"></button>
+          </div>
+        </div>
+
+        <div class="tool-group">
+          <div class="label-row">
+            <label>Size</label>
+            <span id="brushSizeDisplay">4px</span>
+          </div>
+          <input type="range" id="brushSize" min="1" max="40" value="4">
+        </div>
+
+        <div class="tool-group actions-group">
+          <label>Actions</label>
+          <button id="undoBtn" class="btn btn-action" title="Undo Last Stroke">↩️ Undo</button>
+          <button id="clearBtn" class="btn btn-danger" title="Clear Canvas">🗑️ Clear</button>
+          <button id="downloadBtn" class="btn btn-action" title="Save as Image">💾 Save PNG</button>
+        </div>
+      </aside>
+
+      <main class="canvas-area">
+        <canvas id="paintCanvas"></canvas>
+        <div id="cursorLayer" class="cursor-layer"></div>
+      </main>
+    </div>
+  </div>
+
+  <div id="roomModal" class="modal hidden">
+    <div class="modal-card">
+      <h2>Switch Whiteboard Room</h2>
+      <p>Enter the Room ID you wish to join or collaborate on:</p>
+      <input type="text" id="modalRoomInput" placeholder="e.g. DESIGN_101, SPRINT_TEAM" autofocus>
+      <div class="modal-actions">
+        <button id="modalCancelBtn" class="btn btn-secondary">Cancel</button>
+        <button id="modalJoinBtn" class="btn btn-primary">Join Room</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="canvas.js"></script>
+</body>
+</html>
