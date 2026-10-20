@@ -1,121 +1,88 @@
-# 🎨 Assignment 11: Real-Time Collaborative Whiteboard & Canvas (Socket.io)
-> **Track:** Backend & Real-Time Web | **Level:** Advanced | **Estimated Time:** 7–9 Hours  
-> **Tech Stack:** Node.js, Express.js, Socket.io, HTML5 Canvas API, CORS
+# 🎨 Real-Time Collaborative Whiteboard & Canvas
 
----
+A multi-user collaborative drawing app — synchronized strokes, live collaborator cursors, room-based boards, clear/undo — built with **Node.js, Express, Socket.io, and the HTML5 Canvas API**.
 
-## 📌 1. Objective & Overview
+## Tech Stack
 
-Build a high-performance **Real-Time Collaborative Multi-User Whiteboard Application** using **Node.js, Express.js, and Socket.io**. This assignment challenges students to synchronize continuous vector stroke streams, manage shared canvas draw history buffers in server memory, handle multi-user room partitioning (`roomId`), track live pointer/cursor coordinates across connected peers, and implement coordinated canvas actions such as `clear` and `undo`.
+- Node.js + Express (serves the static frontend)
+- Socket.io (WebSocket transport for all real-time events)
+- HTML5 Canvas API (client-side drawing)
+- No database — board state lives in server memory for the lifetime of the process
 
-### Key Learning Outcomes:
-- Handling high-frequency WebSocket event streams with minimal latency overhead.
-- Maintaining an in-memory stroke history buffer per room so new joiners immediately sync the existing drawing state.
-- Broadcasting cursor coordinate deltas to display live collaborator cursors in real time.
-- Designing state rollback algorithms (`draw:undo` and `draw:clear`).
-- Managing multi-tenant whiteboard rooms (`socket.join(boardId)`).
-
----
-
-## 🛠️ 2. Tech Stack & Dependencies
+## Setup
 
 ```bash
-# Initialize Node.js project
-npm init -y
-
-# Install dependencies
-npm install express socket.io cors dotenv
-
-# Install development dependencies
-npm install -D nodemon
+npm install
+cp .env.example .env   # optionally change PORT
+npm run dev            # nodemon, auto-restart
+# or
+npm start
 ```
 
----
+Then open **`http://localhost:5000`** in a browser. Enter a name and a Board ID (any string, e.g. `demo`), click **Join Board**.
 
-## 🖌️ 3. Real-Time Canvas Event Protocol
+To test collaboration, open a second browser window (or an incognito tab) at `http://localhost:5000?board=demo` — the `?board=` query param pre-fills the Board ID field — and join with a different name. Draw in one window and watch it appear instantly in the other.
 
-### 🔄 Room & Session Events
+## Real-Time Event Protocol
 
-| Event Name | Direction | Payload Schema | Description |
-|---|:---:|---|---|
-| `board:join` | `Client -> Server` | `{ "boardId": "DESIGN_101", "username": "Alice", "userColor": "#ff5722" }` | Join a collaborative canvas room |
-| `board:init` | `Server -> Client` | `{ "strokes": [...], "activeUsers": [...] }` | Emits complete stroke history to the newly joined peer |
-| `user:joined` | `Server -> Room` | `{ "userId": "socket_id", "username": "Alice", "color": "#ff5722" }` | Notifies other participants in the board room |
-| `user:left` | `Server -> Room` | `{ "userId": "socket_id", "username": "Alice" }` | Broadcasted when a peer disconnects |
+**Room & session events**
 
-### ✏️ Drawing & Pointer Events
+| Event | Direction | Payload |
+|---|---|---|
+| `board:join` | Client → Server | `{ boardId, username, userColor }` |
+| `board:init` | Server → Client | `{ strokes, activeUsers }` — full history sent only to the joining peer |
+| `user:joined` | Server → Room | `{ userId, username, color }` |
+| `user:left` | Server → Room | `{ userId, username }` |
 
-| Event Name | Direction | Payload Schema | Description |
-|---|:---:|---|---|
-| `draw:stroke` | `Client -> Server` | `{ "boardId": "...", "stroke": { "prevX": 120, "prevY": 80, "currX": 125, "currY": 85, "color": "#000", "size": 3 } }` | Client draws a line segment; server appends to room history |
-| `draw:broadcast` | `Server -> Room (broadcast.to)` | `{ "stroke": { ... } }` | Relays drawing stroke to all other participants in the room |
-| `cursor:move` | `Client -> Server` | `{ "boardId": "...", "x": 140, "y": 95 }` | High-frequency mouse pointer sync |
-| `cursor:update` | `Server -> Room (broadcast.to)` | `{ "userId": "socket_id", "x": 140, "y": 95 }` | Relays peer cursor positions on screen |
-| `board:clear` | `Client -> Server` | `{ "boardId": "DESIGN_101" }` | Clears all strokes for this room |
-| `board:cleared` | `Server -> Room` | `{ "clearedBy": "Alice" }` | Notifies all room peers to wipe their local canvas |
-| `draw:undo` | `Client -> Server` | `{ "boardId": "DESIGN_101" }` | Removes the last continuous stroke action |
-| `board:sync` | `Server -> Room` | `{ "strokes": [...] }` | Broadcasts new state snapshot after undo |
+**Drawing & pointer events**
 
----
+| Event | Direction | Payload |
+|---|---|---|
+| `draw:stroke` | Client → Server | `{ boardId, stroke: { prevX, prevY, currX, currY, color, size, strokeGroupId } }` |
+| `draw:broadcast` | Server → Room (excluding sender) | `{ stroke }` |
+| `cursor:move` | Client → Server | `{ boardId, x, y }` |
+| `cursor:update` | Server → Room (excluding sender) | `{ userId, x, y }` |
+| `board:clear` | Client → Server | `{ boardId }` |
+| `board:cleared` | Server → Room (including sender) | `{ clearedBy }` |
+| `draw:undo` | Client → Server | `{ boardId }` |
+| `board:sync` | Server → Room (including sender) | `{ strokes }` — full corrected state after undo |
 
-## 🏗️ 4. Server-Side Board State Architecture
+## Key Design Notes
 
-```javascript
-// In-Memory Whiteboard Store
-const boardRooms = {
-  "DESIGN_101": {
-    boardId: "DESIGN_101",
-    strokes: [], // Array of stroke objects
-    users: {}    // Map of socketId -> { username, color, cursor: { x, y } }
-  }
-};
+- **In-memory board store** (`sockets/boardStore.js`): `{ boardId: { strokes: [], users: {} } }`. No persistence — restarting the server clears all boards, matching the assignment's in-memory requirement.
+- **Stroke grouping for undo**: each individual `draw:stroke` event carries a `strokeGroupId` generated once per continuous pen-down-to-pen-up gesture on the client. `draw:undo` removes every segment sharing that requesting user's most recent `strokeGroupId` — so a whole handwritten letter or curve disappears in one undo, not just the last tiny line segment. Undo only ever removes the *requesting user's own* last stroke, so it can't erase a collaborator's drawing.
+- **Late joiners sync instantly**: `board:init` is emitted only to the socket that just joined (`socket.emit`, not `io.to`), carrying the full `strokes` buffer built up so far — this is what makes a third browser window immediately see prior drawing.
+- **Cursor events are fire-and-forget**: unlike strokes, cursor positions are not stored in history — only the live broadcast matters, keeping the high-frequency `cursor:move` stream cheap.
+
+## Testing Checklist (from the assignment spec)
+
+Verified via an automated Socket.io integration test during development (two+ simulated clients in the same room):
+
+1. ✅ Client B receives `board:init` with the correct existing state on join
+2. ✅ Client A is notified via `user:joined` when Client B joins
+3. ✅ A stroke drawn by Client A reaches Client B via `draw:broadcast` in real time
+4. ✅ Cursor movement from Client A reaches Client B via `cursor:update`
+5. ✅ A third client joining afterward immediately receives the full prior stroke history via `board:init`
+6. ✅ `board:clear` from Client A reaches Client B via `board:cleared`
+7. ✅ `draw:undo` removes only the most recent stroke group, leaving earlier strokes intact, and broadcasts the corrected state via `board:sync`
+
+To verify visually yourself: open two browser windows side by side at `http://localhost:5000?board=demo`, draw in one, and watch the other update instantly — plus a live colored cursor label following your mouse.
+
+## Project Structure
+
 ```
-
----
-
-## 📁 5. Directory Structure
-
-```text
-assignment-11-whiteboard-socket/
+whiteboard-socket/
 ├── public/
-│   ├── index.html           # Full HTML5 Canvas collaborative interface
-│   ├── canvas.js            # Client-side drawing & socket event emitter
-│   └── styles.css           # Toolbars, color pickers & canvas layout
+│   ├── index.html
+│   ├── canvas.js
+│   └── styles.css
 ├── sockets/
-│   ├── boardHandler.js      # Room join, stroke caching & canvas reset handlers
-│   └── cursorHandler.js     # Live cursor coordinate streaming
-├── server.js                # Express & Socket.io server bootstrap
+│   ├── boardStore.js      # in-memory room/state store (shared)
+│   ├── boardHandler.js    # join, stroke caching, clear, undo
+│   └── cursorHandler.js   # live cursor coordinate streaming
+├── .env.example
+├── .gitignore
 ├── package.json
+├── server.js
 └── README.md
 ```
-
----
-
-## 🧪 6. Testing & Validation
-
-1. Start server at `http://localhost:5000`.
-2. Open two browser windows side-by-side on `http://localhost:5000?board=demo`.
-3. Draw in Window 1: verify that Window 2 renders the exact stroke in real time without lag.
-4. Move mouse in Window 1: verify a colored collaborator cursor moves smoothly in Window 2.
-5. Open a third browser window in an incognito tab with the same board URL: verify it immediately loads all prior strokes from `board:init`.
-6. Click **Clear Canvas** in Window 1: verify both Window 2 and 3 instantly clear.
-
----
-
-## 📊 7. Grading Rubric (100 Marks)
-
-| Evaluation Component | Marks |
-|---|:---:|
-| **Socket.io Connection & Multi-Room Management** | 25 |
-| **Real-Time Stroke Streaming & History Buffer Synchronization** | 30 |
-| **Live Multi-User Collaborator Cursor Tracking** | 15 |
-| **Canvas Reset (`board:clear`) & Undo Implementation** | 15 |
-| **Client UI Smoothness, Responsive Canvas & Code Organization** | 15 |
-| **Total Marks** | **100** |
-
----
-
-## 📤 8. Submission Guidelines
-
-- Submit your GitHub repository: `itm-assignment-11-whiteboard-socket`.
-- Provide a link to a live demo or a screen recording displaying 2 browser windows drawing together simultaneously.
